@@ -102,7 +102,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
     const { id } = req.params;
 
     const product = await prisma.product.findUnique({
-      where: { id },
+      where: { id: id! },
       include: {
         category: {
           select: {

@@ -37,7 +37,7 @@ export const getCategoryById = async (req: Request, res: Response): Promise<void
     const { id } = req.params;
 
     const category = await prisma.category.findUnique({
-      where: { id },
+      where: { id: id! },
       include: {
         products: {
           take: 10,
@@ -81,7 +81,7 @@ export const getCategoryBySlug = async (req: Request, res: Response): Promise<vo
     const { slug } = req.params;
 
     const category = await prisma.category.findUnique({
-      where: { slug },
+      where: { slug: slug! },
       include: {
         products: {
           take: 10,
