@@ -1,0 +1,33 @@
+{
+  "name": "ecommerce-portfolio",
+  "version": "1.0.0",
+  "description": "현대적인 기술 스택으로 구축된 풀스택 쇼핑몰 포트폴리오",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
+    "backend:dev": "cd backend && npm run dev",
+    "frontend:dev": "cd frontend && npm run dev",
+    "backend:build": "cd backend && npm run build",
+    "frontend:build": "cd frontend && npm run build",
+    "backend:start": "cd backend && npm start",
+    "frontend:start": "cd frontend && npm start",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "test": "concurrently \"npm run backend:test\" \"npm run frontend:test\"",
+    "backend:test": "cd backend && npm test",
+    "frontend:test": "cd frontend && npm test"
+  },
+  "keywords": [
+    "ecommerce",
+    "portfolio",
+    "nextjs",
+    "express",
+    "typescript",
+    "prisma",
+    "postgresql"
+  ],
+  "author": "Jason Kang",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
