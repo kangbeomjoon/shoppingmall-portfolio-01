@@ -112,7 +112,7 @@ export default function Home() {
                   </Button>
                 </Link>
                 <Link href="/categories">
-                  <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+                  <Button size="lg" variant="outline" className="border-white text-black bg-white hover:bg-gray-100">
                     카테고리 보기
                   </Button>
                 </Link>
@@ -186,7 +186,7 @@ export default function Home() {
       <section className="bg-muted/50 py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">왜 E-Shop을 선택해야 할까요?</h2>
+            <h2 className="text-3xl font-bold mb-4">왜 개발자들의 쇼핑몰을 선택해야 할까요?</h2>
             <p className="text-muted-foreground">
               고객 만족을 위한 다양한 서비스를 제공합니다
             </p>

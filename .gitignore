@@ -63,3 +63,21 @@ temp/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Python
+.python-version
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+venv/
+env/
+
+# Python project files
+main.py
+pyproject.toml
+uv.lock
+
+# Claude AI configuration files
+CLAUDE.md
+**/CLAUDE.md

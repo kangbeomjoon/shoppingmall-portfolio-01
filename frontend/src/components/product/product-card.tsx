@@ -5,10 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ShoppingCart, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/lib/utils';
 import { Product } from '@/types';
+import { useCartStore } from '@/stores/cart-store';
 
 interface ProductCardProps {
   product: Product;
@@ -18,6 +19,7 @@ interface ProductCardProps {
 export function ProductCard({ product, className }: ProductCardProps) {
   const [isLiked, setIsLiked] = React.useState(false);
   const [isAddingToCart, setIsAddingToCart] = React.useState(false);
+  const { addItem } = useCartStore();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -26,9 +28,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
     setIsAddingToCart(true);
     
     try {
-      // TODO: Implement add to cart functionality
-      await new Promise(resolve => setTimeout(resolve, 500)); // Mock API call
-      console.log('Added to cart:', product.id);
+      // Add to Zustand cart store
+      addItem(product, 1);
+      console.log('Added to cart:', product.name);
+      
+      // Short delay for visual feedback
+      await new Promise(resolve => setTimeout(resolve, 300));
     } catch (error) {
       console.error('Failed to add to cart:', error);
     } finally {
@@ -60,11 +65,26 @@ export function ProductCard({ product, className }: ProductCardProps) {
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
             
-            {/* Like Button */}
+            {/* Cart Button */}
             <Button
               variant="ghost"
               size="icon"
               className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white opacity-0 group-hover:opacity-100 transition-all duration-200"
+              onClick={handleAddToCart}
+              disabled={isOutOfStock || isAddingToCart}
+            >
+              {isAddingToCart ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-600 border-t-transparent" />
+              ) : (
+                <ShoppingCart className="h-4 w-4 text-gray-600" />
+              )}
+            </Button>
+
+            {/* Like Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-10 h-8 w-8 rounded-full bg-white/80 hover:bg-white opacity-0 group-hover:opacity-100 transition-all duration-200"
               onClick={handleToggleLike}
             >
               <Heart
@@ -110,26 +130,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
           </div>
         </CardContent>
 
-        <CardFooter className="p-4 pt-0">
-          <Button
-            className="w-full"
-            onClick={handleAddToCart}
-            disabled={isOutOfStock || isAddingToCart}
-            size="sm"
-          >
-            {isAddingToCart ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
-                추가 중...
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                {isOutOfStock ? '품절' : '장바구니'}
-              </>
-            )}
-          </Button>
-        </CardFooter>
       </Card>
     </Link>
   );
