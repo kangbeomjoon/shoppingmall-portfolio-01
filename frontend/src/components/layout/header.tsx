@@ -3,12 +3,14 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useCartStore } from '@/stores/cart-store';
+import { CartDropdown } from './cart-dropdown';
 
 interface HeaderProps {
   className?: string;
@@ -19,7 +21,9 @@ export function Header({ className }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [cartItemCount, setCartItemCount] = React.useState(0);
+  const [isCartOpen, setIsCartOpen] = React.useState(false);
+  const { totalItems } = useCartStore();
+  const cartDropdownRef = React.useRef<HTMLDivElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +31,25 @@ export function Header({ className }: HeaderProps) {
       router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
     }
   };
+
+  const handleCartClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsCartOpen(!isCartOpen);
+  };
+
+  // Close cart dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cartDropdownRef.current && !cartDropdownRef.current.contains(event.target as Node)) {
+        setIsCartOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const navItems = [
     { href: '/', label: '홈' },
@@ -45,7 +68,7 @@ export function Header({ className }: HeaderProps) {
               <span className="text-sm font-bold">E</span>
             </div>
             <span className="hidden text-xl font-bold sm:inline-block">
-              E-Shop
+              개발자들의 쇼핑몰
             </span>
           </Link>
 
@@ -78,19 +101,34 @@ export function Header({ className }: HeaderProps) {
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
             {/* Cart */}
-            <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                {cartItemCount > 0 && (
+            <div className="relative" ref={cartDropdownRef}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onClick={handleCartClick}
+              >
+                <ShoppingCart className={cn(
+                  "h-5 w-5 transition-colors",
+                  totalItems > 0 && "text-primary"
+                )} />
+                {totalItems > 0 && (
                   <Badge
                     variant="destructive"
-                    className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs"
+                    className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center transition-all duration-200"
                   >
-                    {cartItemCount}
+                    {totalItems > 99 ? '99+' : totalItems}
                   </Badge>
                 )}
               </Button>
-            </Link>
+              
+              {/* Cart Dropdown */}
+              {isCartOpen && (
+                <div className="absolute right-0 top-full mt-2 z-50">
+                  <CartDropdown />
+                </div>
+              )}
+            </div>
 
             {/* User Menu */}
             {isLoggedIn ? (
