@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/loading';
 import { ProductGrid } from '@/components/product/product-card';
-import { useProducts, useCategories } from '@/hooks/use-products';
+import { useProducts } from '@/hooks/use-products';
+import { useCategories } from '@/hooks/use-categories';
 
 const sortOptions = [
   { value: 'latest', label: '최신순' },

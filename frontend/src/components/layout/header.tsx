@@ -3,13 +3,14 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, Search, Menu, X } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/stores/cart-store';
+import { useCategories } from '@/hooks/use-categories';
 import { CartDropdown } from './cart-dropdown';
 
 interface HeaderProps {
@@ -22,8 +23,11 @@ export function Header({ className }: HeaderProps) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isCartOpen, setIsCartOpen] = React.useState(false);
+  const [isCategoriesOpen, setIsCategoriesOpen] = React.useState(false);
   const { totalItems } = useCartStore();
+  const { data: categories } = useCategories();
   const cartDropdownRef = React.useRef<HTMLDivElement>(null);
+  const categoriesDropdownRef = React.useRef<HTMLDivElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,11 +41,14 @@ export function Header({ className }: HeaderProps) {
     setIsCartOpen(!isCartOpen);
   };
 
-  // Close cart dropdown when clicking outside
+  // Close dropdowns when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cartDropdownRef.current && !cartDropdownRef.current.contains(event.target as Node)) {
         setIsCartOpen(false);
+      }
+      if (categoriesDropdownRef.current && !categoriesDropdownRef.current.contains(event.target as Node)) {
+        setIsCategoriesOpen(false);
       }
     };
 
@@ -75,13 +82,54 @@ export function Header({ className }: HeaderProps) {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                {item.label}
-              </Link>
+              item.label === '카테고리' ? (
+                <div key={item.href} className="relative" ref={categoriesDropdownRef}>
+                  <button
+                    onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+                    className="flex items-center text-sm font-medium transition-colors hover:text-primary"
+                  >
+                    {item.label}
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </button>
+                  
+                  {isCategoriesOpen && categories && (
+                    <div className="absolute left-0 top-full mt-2 w-48 rounded-md bg-background border shadow-lg">
+                      <div className="py-1">
+                        <Link
+                          href="/products"
+                          className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                          onClick={() => setIsCategoriesOpen(false)}
+                        >
+                          전체 상품
+                        </Link>
+                        {categories.map((category) => (
+                          <Link
+                            key={category.id}
+                            href={`/categories/${category.slug}`}
+                            className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+                            onClick={() => setIsCategoriesOpen(false)}
+                          >
+                            {category.name}
+                            {category._count && (
+                              <span className="ml-2 text-xs text-muted-foreground">
+                                ({category._count.products})
+                              </span>
+                            )}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm font-medium transition-colors hover:text-primary"
+                >
+                  {item.label}
+                </Link>
+              )
             ))}
           </nav>
 
@@ -184,14 +232,48 @@ export function Header({ className }: HeaderProps) {
 
               {/* Mobile Navigation */}
               {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="block px-3 py-2 text-base font-medium transition-colors hover:text-primary"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
+                item.label === '카테고리' ? (
+                  <div key={item.href}>
+                    <div className="px-3 py-2 text-base font-medium">
+                      카테고리
+                    </div>
+                    {categories && (
+                      <div className="pl-6">
+                        <Link
+                          href="/products"
+                          className="block px-3 py-1 text-sm transition-colors hover:text-primary"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          전체 상품
+                        </Link>
+                        {categories.map((category) => (
+                          <Link
+                            key={category.id}
+                            href={`/categories/${category.slug}`}
+                            className="block px-3 py-1 text-sm transition-colors hover:text-primary"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            {category.name}
+                            {category._count && (
+                              <span className="ml-2 text-xs text-muted-foreground">
+                                ({category._count.products})
+                              </span>
+                            )}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block px-3 py-2 text-base font-medium transition-colors hover:text-primary"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                )
               ))}
 
               {/* Mobile Auth */}
