@@ -27,9 +27,10 @@ model User {
 }
 
 model Category {
-  id   String @id @default(cuid())
-  name String @unique
-  slug String @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
+  slug        String  @unique
+  description String?
 
   // Relations
   products Product[]

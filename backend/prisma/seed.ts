@@ -6,36 +6,61 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting seed...');
 
-  // Create categories
+  // Create or update categories
   const categories = await Promise.all([
-    prisma.category.create({
-      data: {
+    prisma.category.upsert({
+      where: { slug: 'clothing' },
+      update: {
+        description: '트렌드를 선도하는 다양한 스타일의 의류를 만나보세요',
+      },
+      create: {
         name: '의류',
         slug: 'clothing',
+        description: '트렌드를 선도하는 다양한 스타일의 의류를 만나보세요',
       },
     }),
-    prisma.category.create({
-      data: {
+    prisma.category.upsert({
+      where: { slug: 'electronics' },
+      update: {
+        description: '최신 기술이 적용된 스마트한 전자제품 컬렉션',
+      },
+      create: {
         name: '전자제품',
         slug: 'electronics',
+        description: '최신 기술이 적용된 스마트한 전자제품 컬렉션',
       },
     }),
-    prisma.category.create({
-      data: {
+    prisma.category.upsert({
+      where: { slug: 'bags' },
+      update: {
+        description: '실용성과 스타일을 겸비한 다양한 가방 제품',
+      },
+      create: {
         name: '가방',
         slug: 'bags',
+        description: '실용성과 스타일을 겸비한 다양한 가방 제품',
       },
     }),
-    prisma.category.create({
-      data: {
+    prisma.category.upsert({
+      where: { slug: 'shoes' },
+      update: {
+        description: '편안함과 디자인을 모두 갖춘 신발 컬렉션',
+      },
+      create: {
         name: '신발',
         slug: 'shoes',
+        description: '편안함과 디자인을 모두 갖춘 신발 컬렉션',
       },
     }),
-    prisma.category.create({
-      data: {
+    prisma.category.upsert({
+      where: { slug: 'accessories' },
+      update: {
+        description: '스타일을 완성하는 감각적인 액세서리',
+      },
+      create: {
         name: '액세서리',
         slug: 'accessories',
+        description: '스타일을 완성하는 감각적인 액세서리',
       },
     }),
   ]);
@@ -177,10 +202,15 @@ async function main() {
 
   console.log('✅ Products created');
 
-  // Create test user
+  // Create or update test user
   const hashedPassword = await bcrypt.hash('password123', 10);
-  const testUser = await prisma.user.create({
-    data: {
+  const testUser = await prisma.user.upsert({
+    where: { email: 'test@example.com' },
+    update: {
+      name: '테스트 유저',
+      phone: '010-1234-5678',
+    },
+    create: {
       email: 'test@example.com',
       password: hashedPassword,
       name: '테스트 유저',
