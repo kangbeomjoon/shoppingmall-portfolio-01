@@ -31,7 +31,7 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    const token = localStorage.getItem('token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
     const config: RequestInit = {
       headers: {
@@ -116,7 +116,7 @@ class ApiClient {
   }
 
   async getFeaturedProducts() {
-    return this.request('/api/products/featured');
+    return this.request<any[]>('/api/products/featured');
   }
 
   async searchProducts(query: string) {
@@ -125,7 +125,7 @@ class ApiClient {
 
   // Categories endpoints
   async getCategories() {
-    return this.request('/api/categories');
+    return this.request<any[]>('/api/categories');
   }
 
   async getCategory(id: string) {

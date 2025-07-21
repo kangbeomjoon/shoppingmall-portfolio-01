@@ -1,55 +1,58 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api';
-import { queryKeys } from '@/lib/query-client';
-import { Product, ProductFilters, PaginationParams } from '@/types';
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '@/lib/api';
+import { Product } from '@/types';
+import { PaginatedResponse } from '@/lib/api';
 
-// Get products with filters and pagination
-export function useProducts(
-  filters?: ProductFilters & PaginationParams
-) {
+interface UseProductsParams {
+  page?: number;
+  limit?: number;
+  categoryId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}
+
+export function useProducts(params: UseProductsParams = {}) {
   return useQuery({
-    queryKey: [...queryKeys.products, filters],
-    queryFn: () => apiClient.getProducts(filters),
-    select: (data) => data.data,
+    queryKey: ['products', params],
+    queryFn: async () => {
+      const response = await apiClient.getProducts(params);
+      if (response.success && response.data) {
+        return response.data as PaginatedResponse<Product>;
+      }
+      throw new Error(response.error || 'Failed to fetch products');
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
-// Get single product by ID
 export function useProduct(id: string) {
   return useQuery({
-    queryKey: queryKeys.product(id),
-    queryFn: () => apiClient.getProduct(id),
-    select: (data) => data.data,
+    queryKey: ['product', id],
+    queryFn: async () => {
+      const response = await apiClient.getProduct(id);
+      if (response.success && response.data) {
+        return response.data as Product;
+      }
+      throw new Error(response.error || 'Failed to fetch product');
+    },
     enabled: !!id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
-// Get featured products
-export function useFeaturedProducts() {
+export function useCategories() {
   return useQuery({
-    queryKey: queryKeys.featuredProducts,
-    queryFn: () => apiClient.getFeaturedProducts(),
-    select: (data) => data.data,
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await apiClient.getCategories();
+      if (response.success && response.data) {
+        return response.data;
+      }
+      throw new Error(response.error || 'Failed to fetch categories');
+    },
     staleTime: 1000 * 60 * 10, // 10 minutes
-  });
-}
-
-// Search products
-export function useSearchProducts(query: string) {
-  return useQuery({
-    queryKey: queryKeys.searchProducts(query),
-    queryFn: () => apiClient.searchProducts(query),
-    select: (data) => data.data,
-    enabled: !!query && query.length > 0,
-  });
-}
-
-// Get products by category
-export function useProductsByCategory(categoryId: string) {
-  return useQuery({
-    queryKey: queryKeys.productsByCategory(categoryId),
-    queryFn: () => apiClient.getProducts({ categoryId }),
-    select: (data) => data.data,
-    enabled: !!categoryId,
   });
 }

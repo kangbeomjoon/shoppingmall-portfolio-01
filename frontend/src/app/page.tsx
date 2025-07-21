@@ -5,65 +5,35 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProductGrid } from '@/components/product/product-card';
+import apiClient from '@/lib/api';
+import { Product, Category } from '@/types';
 
-// Mock data for featured products
-const featuredProducts = [
-  {
-    id: '1',
-    name: '클래식 화이트 셔츠',
-    description: '편안한 착용감과 깔끔한 디자인의 기본 화이트 셔츠입니다.',
-    price: 59000,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1621072156002-e2fccdc0b176?w=400',
-    categoryId: 'clothing',
-    category: { id: 'clothing', name: '의류', slug: 'clothing' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '2',
-    name: '블루투스 헤드폰',
-    description: '고음질 사운드와 뛰어난 노이즈 캔슬링 기능을 제공합니다.',
-    price: 199000,
-    stock: 25,
-    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
-    categoryId: 'electronics',
-    category: { id: 'electronics', name: '전자제품', slug: 'electronics' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '3',
-    name: '레더 백팩',
-    description: '고급 가죽으로 제작된 실용적이고 세련된 백팩입니다.',
-    price: 159000,
-    stock: 20,
-    imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400',
-    categoryId: 'bags',
-    category: { id: 'bags', name: '가방', slug: 'bags' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '4',
-    name: '클래식 스니커즈',
-    description: '편안함과 스타일을 모두 갖춘 클래식 디자인의 스니커즈입니다.',
-    price: 129000,
-    stock: 45,
-    imageUrl: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
-    categoryId: 'shoes',
-    category: { id: 'shoes', name: '신발', slug: 'shoes' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-];
+// 서버에서 데이터 가져오기
+async function getFeaturedProducts() {
+  try {
+    const response = await apiClient.getFeaturedProducts();
+    if (response.success && response.data) {
+      return response.data as Product[];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to fetch featured products:', error);
+    return [];
+  }
+}
 
-const categories = [
-  { id: 'clothing', name: '의류', slug: 'clothing', image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=300' },
-  { id: 'electronics', name: '전자제품', slug: 'electronics', image: 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=300' },
-  { id: 'bags', name: '가방', slug: 'bags', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300' },
-  { id: 'shoes', name: '신발', slug: 'shoes', image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=300' },
-];
+async function getCategories() {
+  try {
+    const response = await apiClient.getCategories();
+    if (response.success && response.data) {
+      return response.data as Category[];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+    return [];
+  }
+}
 
 const features = [
   {
@@ -88,7 +58,13 @@ const features = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  // 서버 컴포넌트에서 데이터 가져오기
+  const [featuredProducts, categories] = await Promise.all([
+    getFeaturedProducts(),
+    getCategories()
+  ]);
+
   return (
     <div className="space-y-16 py-8">
       {/* Hero Section */}
@@ -145,7 +121,13 @@ export default function Home() {
                 <CardContent className="p-0">
                   <div className="relative aspect-square overflow-hidden rounded-t-lg">
                     <Image
-                      src={category.image}
+                      src={`https://images.unsplash.com/photo-${
+                        category.slug === 'bags' ? '1553062407-98eeb64c6a62' :
+                        category.slug === 'shoes' ? '1549298916-b41d501d3772' :
+                        category.slug === 'accessories' ? '1515562141207-7a88fb7ce338' :
+                        category.slug === 'clothing' ? '1445205170230-053b83016050' :
+                        '1468495244123-6c6c332eeece'  // electronics
+                      }?w=300`}
                       alt={category.name}
                       fill
                       className="object-cover transition-transform group-hover:scale-105"

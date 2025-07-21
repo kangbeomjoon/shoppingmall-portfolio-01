@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, Filter, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,115 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/loading';
 import { ProductGrid } from '@/components/product/product-card';
-import { Product } from '@/types';
-
-// Mock data - 실제로는 API에서 가져올 예정
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: '클래식 화이트 셔츠',
-    description: '편안한 착용감과 깔끔한 디자인의 기본 화이트 셔츠입니다.',
-    price: 59000,
-    stock: 50,
-    imageUrl: 'https://images.unsplash.com/photo-1621072156002-e2fccdc0b176?w=400',
-    categoryId: 'clothing',
-    category: { id: 'clothing', name: '의류', slug: 'clothing' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '2',
-    name: '블루투스 헤드폰',
-    description: '고음질 사운드와 뛰어난 노이즈 캔슬링 기능을 제공합니다.',
-    price: 199000,
-    stock: 25,
-    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
-    categoryId: 'electronics',
-    category: { id: 'electronics', name: '전자제품', slug: 'electronics' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '3',
-    name: '레더 백팩',
-    description: '고급 가죽으로 제작된 실용적이고 세련된 백팩입니다.',
-    price: 159000,
-    stock: 20,
-    imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400',
-    categoryId: 'bags',
-    category: { id: 'bags', name: '가방', slug: 'bags' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '4',
-    name: '클래식 스니커즈',
-    description: '편안함과 스타일을 모두 갖춘 클래식 디자인의 스니커즈입니다.',
-    price: 129000,
-    stock: 45,
-    imageUrl: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',
-    categoryId: 'shoes',
-    category: { id: 'shoes', name: '신발', slug: 'shoes' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '5',
-    name: '데님 재킷',
-    description: '트렌디한 디자인의 데님 재킷으로 어떤 스타일에도 잘 어울립니다.',
-    price: 89000,
-    stock: 30,
-    imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=400',
-    categoryId: 'clothing',
-    category: { id: 'clothing', name: '의류', slug: 'clothing' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '6',
-    name: '편안한 기본 티셔츠',
-    description: '부드러운 소재로 만든 데일리 착용하기 좋은 기본 티셔츠입니다.',
-    price: 29000,
-    stock: 100,
-    imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
-    categoryId: 'clothing',
-    category: { id: 'clothing', name: '의류', slug: 'clothing' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '7',
-    name: '스마트 워치',
-    description: '건강 관리와 알림 기능을 갖춘 스마트 워치입니다.',
-    price: 299000,
-    stock: 15,
-    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
-    categoryId: 'electronics',
-    category: { id: 'electronics', name: '전자제품', slug: 'electronics' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-  {
-    id: '8',
-    name: '무선 충전기',
-    description: '빠르고 안전한 무선 충전을 제공하는 충전 패드입니다.',
-    price: 45000,
-    stock: 40,
-    imageUrl: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400',
-    categoryId: 'electronics',
-    category: { id: 'electronics', name: '전자제품', slug: 'electronics' },
-    createdAt: '2024-01-01T00:00:00.000Z',
-    updatedAt: '2024-01-01T00:00:00.000Z',
-  },
-];
-
-const categories = [
-  { id: 'all', name: '전체', slug: 'all' },
-  { id: 'clothing', name: '의류', slug: 'clothing' },
-  { id: 'electronics', name: '전자제품', slug: 'electronics' },
-  { id: 'bags', name: '가방', slug: 'bags' },
-  { id: 'shoes', name: '신발', slug: 'shoes' },
-];
+import { useProducts, useCategories } from '@/hooks/use-products';
 
 const sortOptions = [
   { value: 'latest', label: '최신순' },
@@ -127,68 +19,68 @@ const sortOptions = [
 ];
 
 export default function ProductsPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const [products, setProducts] = React.useState<Product[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [searchQuery, setSearchQuery] = React.useState(searchParams.get('search') || '');
-  const [selectedCategory, setSelectedCategory] = React.useState('all');
-  const [sortBy, setSortBy] = React.useState('latest');
+  const [page, setPage] = React.useState(Number(searchParams.get('page')) || 1);
+  const [searchInput, setSearchInput] = React.useState(searchParams.get('search') || '');
+  const [selectedCategory, setSelectedCategory] = React.useState(searchParams.get('category') || '');
+  const [sortBy, setSortBy] = React.useState(searchParams.get('sortBy') || 'latest');
   const [showFilters, setShowFilters] = React.useState(false);
+  
+  // Parse sort options
+  const sortField = sortBy === 'price-low' || sortBy === 'price-high' ? 'price' : 
+                    sortBy === 'name' ? 'name' : 'createdAt';
+  const sortOrder = sortBy === 'price-low' ? 'asc' : 
+                    sortBy === 'price-high' ? 'desc' : 
+                    sortBy === 'name' ? 'asc' : 'desc';
+  
+  // Fetch products
+  const { data: productsData, isLoading: productsLoading } = useProducts({
+    page,
+    limit: 12,
+    categoryId: selectedCategory || undefined,
+    search: searchParams.get('search') || undefined,
+    sortBy: sortField,
+    sortOrder,
+  });
+  
+  // Fetch categories
+  const { data: categoriesData } = useCategories();
 
+  // Update URL when filters change
   React.useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        // 실제로는 API 호출: await apiClient.getProducts({ search: searchQuery, category: selectedCategory, sortBy })
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        let filteredProducts = mockProducts;
-        
-        // Filter by search query
-        if (searchQuery) {
-          filteredProducts = filteredProducts.filter(product =>
-            product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.description.toLowerCase().includes(searchQuery.toLowerCase())
-          );
-        }
-        
-        // Filter by category
-        if (selectedCategory !== 'all') {
-          filteredProducts = filteredProducts.filter(product =>
-            product.categoryId === selectedCategory
-          );
-        }
-        
-        // Sort products
-        filteredProducts.sort((a, b) => {
-          switch (sortBy) {
-            case 'price-low':
-              return a.price - b.price;
-            case 'price-high':
-              return b.price - a.price;
-            case 'name':
-              return a.name.localeCompare(b.name);
-            case 'latest':
-            default:
-              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-          }
-        });
-        
-        setProducts(filteredProducts);
-      } catch (error) {
-        console.error('Failed to fetch products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [searchQuery, selectedCategory, sortBy]);
+    const params = new URLSearchParams();
+    if (searchParams.get('search')) params.set('search', searchParams.get('search')!);
+    if (selectedCategory) params.set('category', selectedCategory);
+    if (sortBy !== 'latest') params.set('sortBy', sortBy);
+    if (page > 1) params.set('page', page.toString());
+    
+    const currentParams = new URLSearchParams(window.location.search);
+    if (params.toString() !== currentParams.toString()) {
+      router.push(`/products?${params.toString()}`);
+    }
+  }, [selectedCategory, sortBy, page, router, searchParams]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Search is handled by useEffect
+    const params = new URLSearchParams(searchParams);
+    if (searchInput) {
+      params.set('search', searchInput);
+    } else {
+      params.delete('search');
+    }
+    params.delete('page');
+    setPage(1);
+    router.push(`/products?${params.toString()}`);
   };
+  
+  const categories = React.useMemo(() => {
+    if (!categoriesData) return [];
+    return [{ id: '', name: '전체', slug: 'all' }, ...categoriesData];
+  }, [categoriesData]);
+  
+  const products = productsData?.data || [];
+  const pagination = productsData?.pagination;
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-8">
@@ -207,8 +99,8 @@ export default function ProductsPage() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="상품 검색..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="pl-10"
           />
         </form>
@@ -241,7 +133,10 @@ export default function ProductsPage() {
                       key={category.id}
                       variant={selectedCategory === category.id ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setSelectedCategory(category.id)}
+                      onClick={() => {
+                        setSelectedCategory(category.id);
+                        setPage(1);
+                      }}
                     >
                       {category.name}
                     </Button>
@@ -258,7 +153,10 @@ export default function ProductsPage() {
                       key={option.value}
                       variant={sortBy === option.value ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setSortBy(option.value)}
+                      onClick={() => {
+                        setSortBy(option.value);
+                        setPage(1);
+                      }}
                     >
                       {option.label}
                     </Button>
@@ -274,14 +172,14 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            총 {products.length}개 상품
+            총 {pagination?.total || 0}개 상품
           </span>
-          {searchQuery && (
+          {searchParams.get('search') && (
             <Badge variant="secondary">
-              "{searchQuery}" 검색 결과
+              "{searchParams.get('search')}" 검색 결과
             </Badge>
           )}
-          {selectedCategory !== 'all' && (
+          {selectedCategory && (
             <Badge variant="secondary">
               {categories.find(c => c.id === selectedCategory)?.name}
             </Badge>
@@ -293,7 +191,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Products Grid */}
-      {loading ? (
+      {productsLoading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
             <Card key={i} className="overflow-hidden">
@@ -317,8 +215,7 @@ export default function ProductsPage() {
           </div>
           <Button
             onClick={() => {
-              setSearchQuery('');
-              setSelectedCategory('all');
+              router.push('/products');
             }}
             variant="outline"
           >
@@ -327,11 +224,54 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {/* Load More Button (if needed) */}
-      {products.length > 0 && (
-        <div className="text-center">
-          <Button variant="outline" size="lg">
-            더 많은 상품 보기
+      {/* Pagination */}
+      {products.length > 0 && pagination && pagination.totalPages > 1 && (
+        <div className="flex justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={!pagination.hasPrevPage}
+          >
+            이전
+          </Button>
+          
+          <div className="flex items-center gap-2">
+            {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+              let pageNumber;
+              if (pagination.totalPages <= 5) {
+                pageNumber = i + 1;
+              } else if (page <= 3) {
+                pageNumber = i + 1;
+              } else if (page >= pagination.totalPages - 2) {
+                pageNumber = pagination.totalPages - 4 + i;
+              } else {
+                pageNumber = page - 2 + i;
+              }
+              
+              if (pageNumber < 1 || pageNumber > pagination.totalPages) return null;
+              
+              return (
+                <Button
+                  key={pageNumber}
+                  variant={page === pageNumber ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setPage(pageNumber)}
+                  className="w-10"
+                >
+                  {pageNumber}
+                </Button>
+              );
+            })}
+          </div>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+            disabled={!pagination.hasNextPage}
+          >
+            다음
           </Button>
         </div>
       )}
