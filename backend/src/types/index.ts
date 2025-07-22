@@ -62,3 +62,15 @@ export interface OrderRequest {
   shippingAddress: string;
   paymentMethod: 'card' | 'transfer';
 }
+
+// Extended Request type with authenticated user
+import { Request } from 'express';
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string;
+    email: string;
+    name: string;
+    isAdmin: boolean;
+  };
+}

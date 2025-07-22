@@ -23,6 +23,7 @@ interface CartActions {
   clearCart: () => void;
   getItemQuantity: (productId: string) => number;
   setLoading: (loading: boolean) => void;
+  syncWithServer: (serverItems: any[]) => void;
 }
 
 export const useCartStore = create<CartState & CartActions>()(
@@ -123,6 +124,25 @@ export const useCartStore = create<CartState & CartActions>()(
 
       setLoading: (loading: boolean) => {
         set({ isLoading: loading });
+      },
+
+      syncWithServer: (serverItems: any[]) => {
+        // Convert server items to our CartItem format
+        const newItems: CartItem[] = serverItems.map(item => ({
+          id: item.id,
+          product: item.product,
+          quantity: item.quantity,
+          addedAt: item.createdAt || new Date().toISOString(),
+        }));
+
+        const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
+        const totalAmount = newItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+
+        set({
+          items: newItems,
+          totalItems,
+          totalAmount,
+        });
       },
     }),
     {

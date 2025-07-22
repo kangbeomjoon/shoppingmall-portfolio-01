@@ -1,10 +1,36 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
 import { queryKeys } from '@/lib/query-client';
 import { useCartStore } from '@/stores/cart-store';
 import { useAuthStore } from '@/stores/auth-store';
 import { useUIStore } from '@/stores/ui-store';
 import { Product } from '@/types';
+import { useEffect } from 'react';
+
+// Sync cart with server
+export function useCartSync() {
+  const { isAuthenticated } = useAuthStore();
+  const { syncWithServer, items } = useCartStore();
+  
+  const { data: serverCart, isLoading } = useQuery({
+    queryKey: queryKeys.cart,
+    queryFn: async () => {
+      const response = await apiClient.getCart();
+      return response.data;
+    },
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Sync cart when server data is available
+  useEffect(() => {
+    if (serverCart && isAuthenticated && !isLoading) {
+      syncWithServer(serverCart.items);
+    }
+  }, [serverCart, isAuthenticated, isLoading, syncWithServer]);
+
+  return { serverCart, isLoading };
+}
 
 // Add item to cart
 export function useAddToCart() {
@@ -48,19 +74,20 @@ export function useAddToCart() {
 // Remove item from cart
 export function useRemoveFromCart() {
   const queryClient = useQueryClient();
-  const { removeItem, setLoading } = useCartStore();
+  const { removeItem, setLoading, items } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const { showToast } = useUIStore();
 
   return useMutation({
     mutationFn: async (productId: string) => {
       if (isAuthenticated) {
-        // Find the cart item ID first (this would be handled differently in real app)
-        // For now, using productId as cartItemId
-        return apiClient.removeFromCart(productId);
-      } else {
-        return Promise.resolve();
+        // Find the cart item ID from the store
+        const cartItem = items.find(item => item.product.id === productId);
+        if (cartItem) {
+          return apiClient.removeFromCart(cartItem.id);
+        }
       }
+      return Promise.resolve();
     },
     onMutate: (productId: string) => {
       setLoading(true);
@@ -87,17 +114,20 @@ export function useRemoveFromCart() {
 // Update item quantity in cart
 export function useUpdateCartQuantity() {
   const queryClient = useQueryClient();
-  const { updateQuantity, setLoading } = useCartStore();
+  const { updateQuantity, setLoading, items } = useCartStore();
   const { isAuthenticated } = useAuthStore();
   const { showToast } = useUIStore();
 
   return useMutation({
     mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
       if (isAuthenticated) {
-        return apiClient.updateCartItem(productId, quantity);
-      } else {
-        return Promise.resolve();
+        // Find the cart item ID from the store
+        const cartItem = items.find(item => item.product.id === productId);
+        if (cartItem) {
+          return apiClient.updateCartItem(cartItem.id, quantity);
+        }
       }
+      return Promise.resolve();
     },
     onMutate: ({ productId, quantity }) => {
       setLoading(true);
