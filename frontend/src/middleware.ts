@@ -28,6 +28,13 @@ export function middleware(request: NextRequest) {
       url.searchParams.set('from', pathname);
       return NextResponse.redirect(url);
     }
+    
+    // Admin 라우트는 추가 권한 검증 필요 (현재는 로그인만 체크)
+    // TODO: JWT 디코드해서 role 확인하거나 API 호출로 권한 검증
+    if (pathname.startsWith('/admin')) {
+      // 임시로 모든 로그인 사용자가 admin 접근 가능
+      // 실제로는 user.role === 'ADMIN' 체크 필요
+    }
   }
   
   // 이미 로그인한 상태에서 로그인/회원가입 페이지 접근 시 홈으로 리다이렉트
