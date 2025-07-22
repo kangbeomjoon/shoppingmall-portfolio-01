@@ -40,6 +40,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           if (response.success && response.data) {
             const { user, token } = response.data;
             localStorage.setItem('token', token);
+            // 쿠키에도 토큰 저장 (서버 사이드 접근용)
+            document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7일
             set({
               user,
               token,
@@ -67,6 +69,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
           if (response.success && response.data) {
             const { user, token } = response.data;
             localStorage.setItem('token', token);
+            // 쿠키에도 토큰 저장 (서버 사이드 접근용)
+            document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7일
             set({
               user,
               token,
@@ -84,6 +88,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       logout: () => {
         localStorage.removeItem('token');
+        // 쿠키에서도 토큰 삭제
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
         set({
           user: null,
           token: null,
@@ -100,6 +106,8 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         try {
           const response = await apiClient.get<User>('/auth/me');
           if (response.success && response.data) {
+            // 쿠키에도 토큰 저장 (서버 사이드 접근용)
+            document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}`; // 7일
             set({
               user: response.data,
               token,
@@ -112,6 +120,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         } catch (error) {
           // 토큰이 유효하지 않은 경우 로그아웃 처리
           localStorage.removeItem('token');
+          document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC';
           set({
             user: null,
             token: null,

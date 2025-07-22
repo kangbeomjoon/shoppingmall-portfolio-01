@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/stores/cart-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { useCategories } from '@/hooks/use-categories';
 import { CartDropdown } from './cart-dropdown';
 
@@ -21,10 +22,10 @@ export function Header({ className }: HeaderProps) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [isCartOpen, setIsCartOpen] = React.useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = React.useState(false);
   const { totalItems } = useCartStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const { data: categories } = useCategories();
   const cartDropdownRef = React.useRef<HTMLDivElement>(null);
   const categoriesDropdownRef = React.useRef<HTMLDivElement>(null);
@@ -39,6 +40,11 @@ export function Header({ className }: HeaderProps) {
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsCartOpen(!isCartOpen);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
   };
 
   // Close dropdowns when clicking outside
@@ -179,13 +185,22 @@ export function Header({ className }: HeaderProps) {
             </div>
 
             {/* User Menu */}
-            {isLoggedIn ? (
-              <Link href="/profile">
-                <Avatar className="h-8 w-8 cursor-pointer">
-                  <AvatarImage src="/avatars/01.png" alt="Profile" />
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-              </Link>
+            {isAuthenticated ? (
+              <div className="hidden md:flex items-center space-x-2">
+                <Link href="/profile">
+                  <Avatar className="h-8 w-8 cursor-pointer">
+                    <AvatarImage src="/avatars/01.png" alt="Profile" />
+                    <AvatarFallback>{user?.name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
+                  </Avatar>
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={handleLogout}
+                >
+                  로그아웃
+                </Button>
+              </div>
             ) : (
               <div className="hidden md:flex items-center space-x-2">
                 <Link href="/login">
@@ -277,7 +292,25 @@ export function Header({ className }: HeaderProps) {
               ))}
 
               {/* Mobile Auth */}
-              {!isLoggedIn && (
+              {isAuthenticated ? (
+                <div className="flex flex-col space-y-2 pt-4">
+                  <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start">
+                      프로필
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    로그아웃
+                  </Button>
+                </div>
+              ) : (
                 <div className="flex flex-col space-y-2 pt-4">
                   <Link href="/login" onClick={() => setIsMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start">

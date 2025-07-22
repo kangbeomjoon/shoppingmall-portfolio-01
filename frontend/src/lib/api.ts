@@ -1,5 +1,15 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
+// AuthStore를 동적으로 import하여 순환 참조 방지
+let authStore: any = null;
+const getAuthStore = async () => {
+  if (!authStore) {
+    const { useAuthStore } = await import('@/stores/auth-store');
+    authStore = useAuthStore.getState();
+  }
+  return authStore;
+};
+
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -47,6 +57,16 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
+        // 401 Unauthorized - 토큰이 만료되었거나 유효하지 않음
+        if (response.status === 401) {
+          const store = await getAuthStore();
+          // 로그아웃 처리
+          store.logout();
+          // 로그인 페이지로 리다이렉트 (브라우저 환경에서만)
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+          }
+        }
         throw new Error(data.error || 'Something went wrong');
       }
 

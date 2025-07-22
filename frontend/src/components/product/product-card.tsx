@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatPrice } from '@/lib/utils';
 import { Product } from '@/types';
-import { useCartStore } from '@/stores/cart-store';
+import { useCart } from '@/hooks/use-cart';
 
 interface ProductCardProps {
   product: Product;
@@ -18,27 +18,13 @@ interface ProductCardProps {
 
 export function ProductCard({ product, className }: ProductCardProps) {
   const [isLiked, setIsLiked] = React.useState(false);
-  const [isAddingToCart, setIsAddingToCart] = React.useState(false);
-  const { addItem } = useCartStore();
+  const { addItem, isAddingItem } = useCart();
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    setIsAddingToCart(true);
-    
-    try {
-      // Add to Zustand cart store
-      addItem(product, 1);
-      console.log('Added to cart:', product.name);
-      
-      // Short delay for visual feedback
-      await new Promise(resolve => setTimeout(resolve, 300));
-    } catch (error) {
-      console.error('Failed to add to cart:', error);
-    } finally {
-      setIsAddingToCart(false);
-    }
+    addItem(product, 1);
   };
 
   const handleToggleLike = (e: React.MouseEvent) => {
@@ -71,9 +57,9 @@ export function ProductCard({ product, className }: ProductCardProps) {
               size="icon"
               className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/80 hover:bg-white opacity-0 group-hover:opacity-100 transition-all duration-200"
               onClick={handleAddToCart}
-              disabled={isOutOfStock || isAddingToCart}
+              disabled={isOutOfStock || isAddingItem}
             >
-              {isAddingToCart ? (
+              {isAddingItem ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-600 border-t-transparent" />
               ) : (
                 <ShoppingCart className="h-4 w-4 text-gray-600" />
