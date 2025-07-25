@@ -61,8 +61,9 @@ export default function RegisterPage() {
     setIsLoading(true);
     
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, agreeToTerms, ...registerData } = data;
-      const response = await apiClient.post('/auth/register', registerData);
+      const response = await apiClient.register(registerData);
       
       if (response.success && response.data) {
         login(response.data.user, response.data.token);
@@ -71,6 +72,7 @@ export default function RegisterPage() {
       } else {
         showToast(response.error || '회원가입에 실패했습니다', 'error');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Register error:', error);
       showToast(

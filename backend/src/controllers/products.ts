@@ -1,7 +1,19 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../lib/db';
-import { ApiResponse, PaginatedResponse, ProductFilters } from '../types';
+import { ApiResponse, PaginatedResponse } from '../types';
+import { AuthenticatedRequest } from '../middleware/auth';
+
+const createProductSchema = z.object({
+  name: z.string().min(1, 'Product name is required'),
+  description: z.string().min(1, 'Product description is required'),
+  price: z.number().min(0, 'Price must be non-negative'),
+  stock: z.number().int().min(0, 'Stock must be non-negative'),
+  categoryId: z.string().min(1, 'Category is required'),
+  imageUrl: z.string().url().optional(),
+});
+
+const updateProductSchema = createProductSchema.partial();
 
 const productQuerySchema = z.object({
   page: z.string().optional().transform(val => val ? parseInt(val) : 1),
@@ -183,7 +195,7 @@ export const searchProducts = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getFeaturedProducts = async (req: Request, res: Response): Promise<void> => {
+export const getFeaturedProducts = async (_req: Request, res: Response): Promise<void> => {
   try {
     const products = await prisma.product.findMany({
       include: {
@@ -209,6 +221,184 @@ export const getFeaturedProducts = async (req: Request, res: Response): Promise<
     res.json(response);
   } catch (error) {
     console.error('Get featured products error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+};
+
+// Admin CRUD operations
+export const createProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const validation = createProductSchema.safeParse(req.body);
+    
+    if (!validation.success) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid product data',
+        details: validation.error.errors,
+      });
+      return;
+    }
+
+    const productData = validation.data;
+
+    // Check if category exists
+    const category = await prisma.category.findUnique({
+      where: { id: productData.categoryId },
+    });
+
+    if (!category) {
+      res.status(400).json({
+        success: false,
+        error: 'Category not found',
+      });
+      return;
+    }
+
+    // Filter out undefined values
+    const cleanData = Object.fromEntries(
+      Object.entries(productData).filter(([, value]) => value !== undefined)
+    );
+
+    const product = await prisma.product.create({
+      data: cleanData as any,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    const response: ApiResponse = {
+      success: true,
+      data: product,
+      message: 'Product created successfully',
+    };
+
+    res.status(201).json(response);
+  } catch (error) {
+    console.error('Create product error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+};
+
+export const updateProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params as { id: string };
+    const validation = updateProductSchema.safeParse(req.body);
+    
+    if (!validation.success) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid product data',
+        details: validation.error.errors,
+      });
+      return;
+    }
+
+    const updateData = validation.data;
+
+    // Check if product exists
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existingProduct) {
+      res.status(404).json({
+        success: false,
+        error: 'Product not found',
+      });
+      return;
+    }
+
+    // Check if category exists (if being updated)
+    if (updateData.categoryId) {
+      const category = await prisma.category.findUnique({
+        where: { id: updateData.categoryId },
+      });
+
+      if (!category) {
+        res.status(400).json({
+          success: false,
+          error: 'Category not found',
+        });
+        return;
+      }
+    }
+
+    // Filter out undefined values
+    const cleanUpdateData = Object.fromEntries(
+      Object.entries(updateData).filter(([, value]) => value !== undefined)
+    );
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: cleanUpdateData as any,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    const response: ApiResponse = {
+      success: true,
+      data: product,
+      message: 'Product updated successfully',
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('Update product error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+};
+
+export const deleteProduct = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params as { id: string };
+
+    // Check if product exists
+    const existingProduct = await prisma.product.findUnique({
+      where: { id },
+    });
+
+    if (!existingProduct) {
+      res.status(404).json({
+        success: false,
+        error: 'Product not found',
+      });
+      return;
+    }
+
+    await prisma.product.delete({
+      where: { id },
+    });
+
+    const response: ApiResponse = {
+      success: true,
+      message: 'Product deleted successfully',
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('Delete product error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error',

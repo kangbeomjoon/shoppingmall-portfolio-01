@@ -22,7 +22,7 @@ const loginSchema = z.object({
 
 type LoginData = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get('from') || '/';
@@ -53,7 +53,7 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      const response = await apiClient.post('/auth/login', data);
+      const response = await apiClient.login(data);
       
       if (response.success && response.data) {
         login(response.data.user, response.data.token);
@@ -62,6 +62,7 @@ export default function LoginPage() {
       } else {
         showToast(response.error || '로그인에 실패했습니다', 'error');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Login error:', error);
       showToast(
@@ -166,5 +167,29 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="space-y-1">
+              <div className="flex items-center justify-center mb-6">
+                <LogIn className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-2xl text-center">로그인</CardTitle>
+              <p className="text-muted-foreground text-center">
+                로딩 중...
+              </p>
+            </CardHeader>
+          </Card>
+        </div>
+      }
+    >
+      <LoginContent />
+    </React.Suspense>
   );
 }

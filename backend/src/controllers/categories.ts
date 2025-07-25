@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../lib/db';
 import { ApiResponse } from '../types';
 
-export const getCategories = async (req: Request, res: Response): Promise<void> => {
+export const getCategories = async (_req: Request, res: Response): Promise<void> => {
   try {
     const categories = await prisma.category.findMany({
       include: {

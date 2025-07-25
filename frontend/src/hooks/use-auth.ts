@@ -31,12 +31,15 @@ export function useLogin() {
       setLoading(true);
     },
     onSuccess: (response) => {
-      const { token, user } = response.data;
-      login(user, token);
-      queryClient.setQueryData(queryKeys.me, user);
-      showToast('로그인되었습니다', 'success');
-      router.push('/');
+      const { token, user } = response.data || {};
+      if (token && user) {
+        login(user, token);
+        queryClient.setQueryData(queryKeys.me, user);
+        showToast('로그인되었습니다', 'success');
+        router.push('/');
+      }
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       showToast(error.message || '로그인에 실패했습니다', 'error');
     },
@@ -59,12 +62,15 @@ export function useRegister() {
       setLoading(true);
     },
     onSuccess: (response) => {
-      const { token, user } = response.data;
-      login(user, token);
-      queryClient.setQueryData(queryKeys.me, user);
-      showToast('회원가입이 완료되었습니다', 'success');
-      router.push('/');
+      const { token, user } = response.data || {};
+      if (token && user) {
+        login(user, token);
+        queryClient.setQueryData(queryKeys.me, user);
+        showToast('회원가입이 완료되었습니다', 'success');
+        router.push('/');
+      }
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       showToast(error.message || '회원가입에 실패했습니다', 'error');
     },
@@ -91,7 +97,7 @@ export function useLogout() {
       showToast('로그아웃되었습니다', 'info');
       router.push('/');
     },
-    onError: (error: any) => {
+    onError: () => {
       // Even if logout fails on server, we should logout on client
       logout();
       queryClient.removeQueries({ queryKey: queryKeys.me });

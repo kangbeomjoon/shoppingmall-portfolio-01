@@ -34,7 +34,7 @@ export function useAddToCart() {
         queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       }
     },
-    onError: (error: any, { product }) => {
+    onError: (error: Error) => {
       showToast(error.message || '장바구니 추가에 실패했습니다', 'error');
       // Revert optimistic update on error
       // TODO: Implement revert logic
@@ -73,6 +73,7 @@ export function useRemoveFromCart() {
         queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       showToast(error.message || '장바구니에서 제거에 실패했습니다', 'error');
       // Revert optimistic update on error
@@ -109,6 +110,7 @@ export function useUpdateCartQuantity() {
         queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       showToast(error.message || '수량 변경에 실패했습니다', 'error');
       // Revert optimistic update on error
@@ -146,6 +148,7 @@ export function useClearCart() {
         queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       showToast(error.message || '장바구니 비우기에 실패했습니다', 'error');
     },

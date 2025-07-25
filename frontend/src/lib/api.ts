@@ -1,5 +1,6 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -44,16 +45,30 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('Failed to parse JSON response:', jsonError);
+        throw new Error('Invalid response from server');
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Something went wrong');
+        const errorMessage = data?.error || data?.message || `HTTP Error: ${response.status} ${response.statusText}`;
+        throw new Error(errorMessage);
       }
 
       return data;
     } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
+      console.error('API request failed:', { url, error });
+      
+      // 네트워크 에러나 다른 예외 상황 처리
+      if (error instanceof Error) {
+        throw error;
+      }
+      
+      throw new Error('Network error or server is unreachable');
     }
   }
 
@@ -64,14 +79,16 @@ class ApiClient {
     name: string;
     phone?: string;
   }) {
-    return this.request('/api/auth/register', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return this.request<{ user: any; token: string }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async login(data: { email: string; password: string }) {
-    return this.request('/api/auth/login', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return this.request<{ user: any; token: string }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -108,6 +125,7 @@ class ApiClient {
     }
 
     const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return this.request<PaginatedResponse<any>>(`/api/products${query}`);
   }
 
@@ -116,6 +134,7 @@ class ApiClient {
   }
 
   async getFeaturedProducts() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return this.request<any[]>('/api/products/featured');
   }
 
@@ -125,6 +144,7 @@ class ApiClient {
 
   // Categories endpoints
   async getCategories() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return this.request<any[]>('/api/categories');
   }
 
@@ -175,6 +195,56 @@ class ApiClient {
 
   async getOrder(id: string) {
     return this.request(`/api/orders/${id}`);
+  }
+
+  // Admin endpoints
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async createProduct(data: any) {
+    return this.request('/api/products', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async updateProduct(id: string, data: any) {
+    return this.request(`/api/products/${id}`, {
+      method: 'PUT', 
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteProduct(id: string) {
+    return this.request(`/api/products/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Generic methods for flexibility
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async post<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'DELETE',
+    });
   }
 }
 

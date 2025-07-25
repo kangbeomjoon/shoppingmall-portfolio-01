@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build output
+dist/
+build/
+
+# TypeScript compiled output
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
+
+# Exclude specific files from TypeScript ignore
+!jest.config.js
+!next.config.js
+
+# Prisma
+prisma/seed.js
+prisma/seed.js.map
+prisma/seed.d.ts
+prisma/seed.d.ts.map
+
+# Logs
+logs/
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

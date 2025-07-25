@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/loading';
 import { ProductGrid } from '@/components/product/product-card';
 import { useProducts } from '@/hooks/use-products';

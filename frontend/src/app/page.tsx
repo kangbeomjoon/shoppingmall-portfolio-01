@@ -3,7 +3,6 @@ import Image from 'next/image';
 import { ArrowRight, ShoppingBag, Truck, Shield, HeadphonesIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { ProductGrid } from '@/components/product/product-card';
 import apiClient from '@/lib/api';
 import { Product, Category } from '@/types';

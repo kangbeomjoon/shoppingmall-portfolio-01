@@ -102,7 +102,7 @@ async function main() {
         price: 69000,
         stock: 55,
         categoryId: categories[0].id,
-        imageUrl: 'https://images.unsplash.com/photo-1556821840-3a9b358808c1?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400',
       },
     }),
     prisma.product.create({
@@ -194,7 +194,7 @@ async function main() {
         price: 39000,
         stock: 60,
         categoryId: categories[1].id,
-        imageUrl: 'https://images.unsplash.com/photo-1609592515813-ad5a1e4c1670?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400',
       },
     }),
 
@@ -246,7 +246,7 @@ async function main() {
         price: 79000,
         stock: 30,
         categoryId: categories[2].id,
-        imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1553603227-2358aabe821e?w=400',
       },
     }),
     prisma.product.create({
@@ -256,7 +256,7 @@ async function main() {
         price: 59000,
         stock: 40,
         categoryId: categories[2].id,
-        imageUrl: 'https://images.unsplash.com/photo-1619713082843-d5c2e8ee4c42?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400',
       },
     }),
     prisma.product.create({
@@ -348,7 +348,7 @@ async function main() {
         price: 229000,
         stock: 18,
         categoryId: categories[3].id,
-        imageUrl: 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5f?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400',
       },
     }),
     prisma.product.create({
@@ -400,7 +400,7 @@ async function main() {
         price: 59000,
         stock: 30,
         categoryId: categories[4].id,
-        imageUrl: 'https://images.unsplash.com/photo-1594736797933-d0b71ea4b67a?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400',
       },
     }),
     prisma.product.create({
@@ -430,7 +430,7 @@ async function main() {
         price: 69000,
         stock: 35,
         categoryId: categories[4].id,
-        imageUrl: 'https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=400',
+        imageUrl: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=400',
       },
     }),
     prisma.product.create({
@@ -457,9 +457,21 @@ async function main() {
 
   console.log('✅ Products created');
 
+  // Create admin user
+  const adminPassword = await bcrypt.hash('admin123', 10);
+  await prisma.user.create({
+    data: {
+      email: 'admin@example.com',
+      password: adminPassword,
+      name: '관리자',
+      phone: '010-0000-0000',
+      isAdmin: true,
+    },
+  });
+
   // Create test user
   const hashedPassword = await bcrypt.hash('password123', 10);
-  const testUser = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: 'test@example.com',
       password: hashedPassword,
@@ -468,12 +480,13 @@ async function main() {
     },
   });
 
-  console.log('✅ Test user created');
+  console.log('✅ Users created');
 
   console.log(`🎉 Seed completed successfully!`);
   console.log(`📊 Created:`);
   console.log(`   - ${categories.length} categories`);
   console.log(`   - ${products.length} products`);
+  console.log(`   - 1 admin user (admin@example.com / admin123)`);
   console.log(`   - 1 test user (test@example.com / password123)`);
 }
 

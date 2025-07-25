@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Filter, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +19,7 @@ const sortOptions = [
   { value: 'name', label: '이름순' },
 ];
 
-export default function ProductsPage() {
+function ProductsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [page, setPage] = React.useState(Number(searchParams.get('page')) || 1);
@@ -177,7 +177,7 @@ export default function ProductsPage() {
           </span>
           {searchParams.get('search') && (
             <Badge variant="secondary">
-              "{searchParams.get('search')}" 검색 결과
+              &quot;{searchParams.get('search')}&quot; 검색 결과
             </Badge>
           )}
           {selectedCategory && (
@@ -277,5 +277,34 @@ export default function ProductsPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center space-y-4 mb-8">
+            <h1 className="text-4xl font-bold">상품 목록</h1>
+            <p className="text-muted-foreground">상품을 불러오는 중...</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton className="aspect-square" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-3 w-1/2" />
+                  <Skeleton className="h-4 w-1/4" />
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      }
+    >
+      <ProductsContent />
+    </React.Suspense>
   );
 }

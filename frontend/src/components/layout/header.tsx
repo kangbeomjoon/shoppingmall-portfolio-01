@@ -21,7 +21,7 @@ export function Header({ className }: HeaderProps) {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [isLoggedIn] = React.useState(false);
   const [isCartOpen, setIsCartOpen] = React.useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = React.useState(false);
   const { totalItems } = useCartStore();
