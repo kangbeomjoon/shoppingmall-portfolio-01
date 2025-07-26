@@ -62,13 +62,12 @@ function LoginContent() {
       } else {
         showToast(response.error || '로그인에 실패했습니다', 'error');
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       console.error('Login error:', error);
-      showToast(
-        error?.response?.data?.message || '로그인 중 오류가 발생했습니다',
-        'error'
-      );
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : '로그인 중 오류가 발생했습니다';
+      showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }

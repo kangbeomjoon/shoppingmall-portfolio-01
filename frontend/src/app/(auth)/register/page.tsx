@@ -72,13 +72,12 @@ export default function RegisterPage() {
       } else {
         showToast(response.error || '회원가입에 실패했습니다', 'error');
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       console.error('Register error:', error);
-      showToast(
-        error?.response?.data?.message || '회원가입 중 오류가 발생했습니다',
-        'error'
-      );
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : '회원가입 중 오류가 발생했습니다';
+      showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }
