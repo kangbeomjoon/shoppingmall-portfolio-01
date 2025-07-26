@@ -10,7 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useUIStore } from '@/stores/ui-store'
-import { Product } from '@/types'
 import Image from 'next/image'
 
 export default function AdminProductsPage() {
@@ -21,13 +20,16 @@ export default function AdminProductsPage() {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['admin-products'],
     queryFn: async () => {
-      const response = await apiClient.get<Product[]>('/products?limit=100')
-      return response.data || []
+      const response = await apiClient.getProducts({ limit: 100 })
+      if (response.success && response.data) {
+        return response.data.data || []
+      }
+      throw new Error(response.error || 'Failed to fetch products')
     }
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => apiClient.delete(`/products/${id}`),
+    mutationFn: (id: string) => apiClient.deleteProduct(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] })
       showToast('상품이 삭제되었습니다', 'success')
@@ -35,7 +37,7 @@ export default function AdminProductsPage() {
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
-      showToast(error.response?.data?.error || '상품 삭제에 실패했습니다', 'error')
+      showToast(error.message || '상품 삭제에 실패했습니다', 'error')
       setDeletingId(null)
     }
   })
