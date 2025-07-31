@@ -7,10 +7,21 @@ export function useCategories() {
     queryKey: ['categories'],
     queryFn: async () => {
       const response = await apiClient.getCategories();
-      return response.data as Category[];
+      if (response.success && response.data) {
+        return response.data as Category[];
+      }
+      throw new Error(response.error || 'Failed to fetch categories');
     },
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분 (cacheTime → gcTime으로 변경됨)
+    retry: (failureCount, error) => {
+      // 네트워크 오류의 경우 3회까지 재시도
+      if (error instanceof Error && error.message.includes('네트워크 연결')) {
+        return failureCount < 3;
+      }
+      return failureCount < 1;
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 
@@ -19,7 +30,10 @@ export function useCategoryById(id: string) {
     queryKey: ['categories', id],
     queryFn: async () => {
       const response = await apiClient.getCategory(id);
-      return response.data as Category;
+      if (response.success && response.data) {
+        return response.data as Category;
+      }
+      throw new Error(response.error || 'Failed to fetch category');
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
@@ -32,7 +46,10 @@ export function useCategoryBySlug(slug: string) {
     queryKey: ['categories', 'slug', slug],
     queryFn: async () => {
       const response = await apiClient.getCategoryBySlug(slug);
-      return response.data as Category;
+      if (response.success && response.data) {
+        return response.data as Category;
+      }
+      throw new Error(response.error || 'Failed to fetch category by slug');
     },
     enabled: !!slug,
     staleTime: 5 * 60 * 1000,

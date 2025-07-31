@@ -81,3 +81,4 @@ uv.lock
 # Claude AI configuration files
 CLAUDE.md
 **/CLAUDE.md
+.claude/agents/

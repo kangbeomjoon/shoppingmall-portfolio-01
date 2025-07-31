@@ -1,0 +1,149 @@
+/* Prime Design System Theme Variables */
+:root {
+  /* Colors - Brand */
+  --color-brand-primary: #222222;
+  --color-brand-light: rgba(34, 34, 34, 0.8);
+
+  /* Colors - Neutral */
+  --color-white: #FFFFFF;
+  --color-background: #F5F5F5;
+  --color-background-secondary: rgba(255, 255, 255, 0.624);
+  --color-black: #000000;
+  
+  --color-gray-900: #222222;
+  --color-gray-800: rgba(34, 34, 34, 0.8);
+  --color-gray-700: rgba(34, 34, 34, 0.5);
+  --color-gray-600: rgba(34, 34, 34, 0.4);
+  --color-gray-500: rgba(34, 34, 34, 0.3);
+  --color-gray-400: rgba(0, 0, 0, 0.533);
+  --color-gray-300: rgba(0, 0, 0, 0.44);
+  --color-gray-200: rgba(0, 0, 0, 0.345);
+  --color-light-gray: #FAFAFA;
+
+  /* Colors - Accent */
+  --color-accent-purple: #4C38D6;
+  --color-overlay: rgba(255, 255, 255, 0.1);
+
+  /* Colors - Status (추가) */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Typography */
+  --font-family-primary: "Pretendard Variable", Pretendard, -apple-system, "system-ui", system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  --font-family-secondary: "Apple SD Gothic Neo";
+  
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 32px;
+  --font-size-5xl: 40px;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+
+  /* Spacing */
+  --spacing-0: 0px;
+  --spacing-1: 4px;
+  --spacing-2: 8px;
+  --spacing-3: 12px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+  --spacing-24: 96px;
+  --spacing-32: 128px;
+
+  /* Border Radius */
+  --radius-none: 0px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 25px;
+  --radius-3xl: 30px;
+  --radius-full: 100px;
+
+  /* Box Shadow */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 0 1px rgba(94, 106, 210, 0.3), 0 0 20px rgba(94, 106, 210, 0.2);
+
+  /* Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+
+  --timing-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --timing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --timing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --timing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout */
+  --container-max-width: 1200px;
+  --header-height: 64px;
+  --sidebar-width: 240px;
+
+  /* Z-Index */
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-notification: 1080;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  background-color: var(--color-background);
+  color: var(--color-gray-900);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  margin: 0;
+  padding: 0;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-light-gray);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-400);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-500);
+}

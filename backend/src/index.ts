@@ -12,9 +12,35 @@ const PORT = process.env.PORT || 5001;
 
 // Security middleware
 app.use(helmet());
+
+// CORS 설정 - 다중 포트 지원
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+console.log('🌐 Allowed CORS origins:', allowedOrigins);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: (origin, callback) => {
+    console.log('🔍 CORS check - Origin:', origin);
+    
+    // origin이 없으면 (같은 도메인) 허용
+    if (!origin) return callback(null, true);
+    
+    // 허용된 origin인지 확인
+    if (allowedOrigins.includes(origin)) {
+      console.log('✅ CORS allowed for:', origin);
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked for:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Rate limiting
@@ -28,6 +54,14 @@ app.use('/api/', limiter);
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// 디버깅 미들웨어 - 모든 요청 로깅
+app.use((req, res, next) => {
+  console.log(`📥 ${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log(`🔗 Origin: ${req.headers.origin || 'none'}`);
+  console.log(`🔑 User-Agent: ${req.headers['user-agent']?.substring(0, 50)}...`);
+  next();
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {

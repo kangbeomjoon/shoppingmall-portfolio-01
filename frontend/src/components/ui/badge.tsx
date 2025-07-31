@@ -3,25 +3,27 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center border-none font-medium transition-colors',
   {
     variants: {
       variant: {
-        default:
-          'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
-        secondary:
-          'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        destructive:
-          'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
-        outline: 'text-foreground',
-        success:
-          'border-transparent bg-green-100 text-green-800 hover:bg-green-200',
-        warning:
-          'border-transparent bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
+        primary: 'bg-[#222222] text-[#FAFAFA] rounded-sm px-2 py-1 text-xs font-bold',
+        brand: 'bg-[#4C38D6] text-white rounded-sm px-2 py-1 text-xs font-medium',
+        success: 'bg-[#10b981] text-white rounded-sm px-2 py-1 text-xs font-medium',
+        warning: 'bg-[#f59e0b] text-white rounded-sm px-2 py-1 text-xs font-medium',
+        error: 'bg-[#ef4444] text-white rounded-sm px-2 py-1 text-xs font-medium',
+        secondary: 'bg-gray-100 text-[#222222] rounded-sm px-2 py-1 text-xs font-normal',
+        outline: 'bg-transparent border border-gray-300 text-[#222222] rounded-sm px-2 py-1 text-xs font-normal',
+      },
+      size: {
+        default: 'px-2 py-1 text-xs',
+        sm: 'px-1.5 py-0.5 text-xs',
+        lg: 'px-3 py-1.5 text-sm',
       },
     },
     defaultVariants: {
-      variant: 'default',
+      variant: 'primary',
+      size: 'default',
     },
   }
 );

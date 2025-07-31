@@ -1,20 +1,39 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
 
-const Avatar = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full',
-      className
-    )}
-    {...props}
-  />
-));
+const avatarVariants = cva(
+  'relative flex shrink-0 overflow-hidden rounded-full border border-white/10',
+  {
+    variants: {
+      size: {
+        sm: 'h-6 w-6',
+        default: 'h-8 w-8',
+        md: 'h-10 w-10',
+        lg: 'h-12 w-12',
+        xl: 'h-16 w-16',
+      },
+    },
+    defaultVariants: {
+      size: 'default',
+    },
+  }
+);
+
+export interface AvatarProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof avatarVariants> {}
+
+const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
+  ({ className, size, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(avatarVariants({ size, className }))}
+      {...props}
+    />
+  )
+);
 Avatar.displayName = 'Avatar';
 
 const AvatarImage = React.forwardRef<
@@ -39,7 +58,7 @@ const AvatarFallback = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      'flex h-full w-full items-center justify-center rounded-full bg-muted text-sm font-medium',
+      'flex h-full w-full items-center justify-center rounded-full bg-[#3e444c] text-[#f7f8f8] text-sm font-medium',
       className
     )}
     {...props}
