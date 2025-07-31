@@ -66,19 +66,22 @@ export default function RegisterPage() {
       const response = await apiClient.register(registerData);
       
       if (response.success && response.data) {
+        // 상태 업데이트를 먼저 실행
         login(response.data.user, response.data.token);
         showToast('회원가입이 완료되었습니다!', 'success');
-        router.push('/');
+        
+        // 다음 프레임에서 라우터 이동 (상태 업데이트가 완료된 후)
+        setTimeout(() => {
+          router.push('/');
+        }, 0);
       } else {
         showToast(response.error || '회원가입에 실패했습니다', 'error');
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Register error:', error);
-      showToast(
-        error?.response?.data?.message || '회원가입 중 오류가 발생했습니다',
-        'error'
-      );
+      const errorMessage = error?.message || error?.response?.data?.message || '회원가입 중 오류가 발생했습니다';
+      showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -223,9 +226,16 @@ export default function RegisterPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading}
+              disabled={isLoading || !form.formState.isValid}
             >
-              {isLoading ? '가입 중...' : '회원가입'}
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  가입 중...
+                </div>
+              ) : (
+                '회원가입'
+              )}
             </Button>
           </form>
 

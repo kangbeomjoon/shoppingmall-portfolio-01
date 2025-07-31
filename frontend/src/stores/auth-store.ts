@@ -27,7 +27,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       // Actions
       login: (user: User, token: string) => {
-        localStorage.setItem('token', token);
+        // localStorage.setItem은 persist 미들웨어가 자동으로 처리하므로 제거
         set({
           user,
           token,
@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       },
 
       logout: () => {
-        localStorage.removeItem('token');
+        // localStorage.removeItem도 persist 미들웨어가 자동으로 처리
         set({
           user: null,
           token: null,

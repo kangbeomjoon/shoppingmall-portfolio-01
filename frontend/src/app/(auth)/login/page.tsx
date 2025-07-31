@@ -56,19 +56,22 @@ function LoginContent() {
       const response = await apiClient.login(data);
       
       if (response.success && response.data) {
+        // 상태 업데이트를 먼저 실행
         login(response.data.user, response.data.token);
         showToast('로그인되었습니다!', 'success');
-        router.push(from);
+        
+        // 다음 프레임에서 라우터 이동 (상태 업데이트가 완료된 후)
+        setTimeout(() => {
+          router.push(from);
+        }, 0);
       } else {
         showToast(response.error || '로그인에 실패했습니다', 'error');
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Login error:', error);
-      showToast(
-        error?.response?.data?.message || '로그인 중 오류가 발생했습니다',
-        'error'
-      );
+      const errorMessage = error?.message || error?.response?.data?.message || '로그인 중 오류가 발생했습니다';
+      showToast(errorMessage, 'error');
     } finally {
       setIsLoading(false);
     }
@@ -138,9 +141,16 @@ function LoginContent() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading}
+              disabled={isLoading || !form.formState.isValid}
             >
-              {isLoading ? '로그인 중...' : '로그인'}
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  로그인 중...
+                </div>
+              ) : (
+                '로그인'
+              )}
             </Button>
           </form>
 

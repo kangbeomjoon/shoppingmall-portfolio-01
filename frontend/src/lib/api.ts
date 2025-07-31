@@ -1,12 +1,13 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
-// 디버깅을 위한 환경 정보 출력
-console.log('🔧 API Client Environment:', {
-  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-  API_BASE_URL,
-  isClient: typeof window !== 'undefined',
-  currentURL: typeof window !== 'undefined' ? window.location.href : 'server-side'
-});
+// 개발 환경에서만 디버깅 정보 출력
+if (process.env.NODE_ENV === 'development') {
+  console.log('🔧 API Client Environment:', {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    API_BASE_URL,
+    isClient: typeof window !== 'undefined'
+  });
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ApiResponse<T = any> {
@@ -33,10 +34,9 @@ class ApiClient {
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
-    console.log('🏗️ ApiClient initialized:', {
-      baseUrl: this.baseUrl,
-      timestamp: new Date().toISOString()
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🏗️ ApiClient initialized:', { baseUrl: this.baseUrl });
+    }
   }
 
   private async request<T>(
@@ -44,7 +44,21 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    // auth-storage에서 토큰 가져오기 (Zustand persist 저장소)
+    let token: string | null = null;
+    if (typeof window !== 'undefined') {
+      try {
+        const authStorage = localStorage.getItem('auth-storage');
+        if (authStorage) {
+          const parsed = JSON.parse(authStorage);
+          token = parsed.state?.token || null;
+        }
+      } catch (error) {
+        console.warn('Failed to parse auth storage:', error);
+        // 저장소가 손상된 경우 초기화
+        localStorage.removeItem('auth-storage');
+      }
+    }
 
     const config: RequestInit = {
       headers: {
@@ -56,29 +70,27 @@ class ApiClient {
     };
 
     try {
-      console.log('🚀 Making request:', {
-        url,
-        method: config.method || 'GET',
-        headers: config.headers,
-        hasBody: !!config.body,
-        timestamp: new Date().toISOString()
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🚀 Making request:', {
+          url,
+          method: config.method || 'GET',
+          hasToken: !!token
+        });
+      }
 
       const response = await fetch(url, config);
       
-      console.log('📡 Response received:', {
-        url,
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-        headers: Object.fromEntries(response.headers.entries()),
-        timestamp: new Date().toISOString()
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📡 Response received:', {
+          url,
+          status: response.status,
+          ok: response.ok
+        });
+      }
 
       let data;
       try {
         data = await response.json();
-        console.log('📦 Response data:', data);
       } catch (jsonError) {
         console.error('❌ Failed to parse JSON response:', jsonError);
         throw new Error('서버로부터 잘못된 응답을 받았습니다.');
@@ -86,18 +98,18 @@ class ApiClient {
 
       if (!response.ok) {
         const errorMessage = data?.error || data?.message || `HTTP ${response.status}: ${response.statusText}`;
-        console.error('❌ API Error:', { status: response.status, errorMessage, data });
+        console.error('❌ API Error:', { status: response.status, errorMessage });
         throw new Error(errorMessage);
       }
 
-      console.log('✅ Request successful:', { url, data });
+      if (process.env.NODE_ENV === 'development') {
+        console.log('✅ Request successful:', { url });
+      }
       return data;
     } catch (error) {
       console.error('💥 API request failed:', { 
         url, 
-        error: error instanceof Error ? error.message : error,
-        errorType: error instanceof Error ? error.constructor.name : typeof error,
-        timestamp: new Date().toISOString()
+        error: error instanceof Error ? error.message : error
       });
       
       // 네트워크 에러나 다른 예외 상황 처리
