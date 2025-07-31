@@ -70,10 +70,8 @@ export default function RegisterPage() {
         login(response.data.user, response.data.token);
         showToast('회원가입이 완료되었습니다!', 'success');
         
-        // 다음 프레임에서 라우터 이동 (상태 업데이트가 완료된 후)
-        setTimeout(() => {
-          router.push('/');
-        }, 0);
+        // 상태 업데이트 후 라우터 이동
+        router.push('/');
       } else {
         showToast(response.error || '회원가입에 실패했습니다', 'error');
       }

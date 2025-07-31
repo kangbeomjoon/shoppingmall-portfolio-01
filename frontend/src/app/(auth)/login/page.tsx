@@ -60,10 +60,8 @@ function LoginContent() {
         login(response.data.user, response.data.token);
         showToast('로그인되었습니다!', 'success');
         
-        // 다음 프레임에서 라우터 이동 (상태 업데이트가 완료된 후)
-        setTimeout(() => {
-          router.push(from);
-        }, 0);
+        // 상태 업데이트 후 라우터 이동
+        router.push(from);
       } else {
         showToast(response.error || '로그인에 실패했습니다', 'error');
       }

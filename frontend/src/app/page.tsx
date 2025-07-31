@@ -1,38 +1,13 @@
+'use client';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, ShoppingBag, Truck, Shield, HeadphonesIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ProductGrid } from '@/components/product/product-card';
-import apiClient from '@/lib/api';
 import { Product, Category } from '@/types';
-
-// 서버에서 데이터 가져오기
-async function getFeaturedProducts() {
-  try {
-    const response = await apiClient.getFeaturedProducts();
-    if (response.success && response.data) {
-      return response.data as Product[];
-    }
-    return [];
-  } catch (error) {
-    console.error('Failed to fetch featured products:', error);
-    return [];
-  }
-}
-
-async function getCategories() {
-  try {
-    const response = await apiClient.getCategories();
-    if (response.success && response.data) {
-      return response.data as Category[];
-    }
-    return [];
-  } catch (error) {
-    console.error('Failed to fetch categories:', error);
-    return [];
-  }
-}
+import { useEffect, useState } from 'react';
+import apiClient from '@/lib/api';
 
 const features = [
   {
@@ -57,12 +32,36 @@ const features = [
   },
 ];
 
-export default async function Home() {
-  // 서버 컴포넌트에서 데이터 가져오기
-  const [featuredProducts, categories] = await Promise.all([
-    getFeaturedProducts(),
-    getCategories()
-  ]);
+export default function Home() {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const [productsResponse, categoriesResponse] = await Promise.all([
+          apiClient.getFeaturedProducts(),
+          apiClient.getCategories()
+        ]);
+
+        if (productsResponse.success && productsResponse.data) {
+          setFeaturedProducts(productsResponse.data as Product[]);
+        }
+
+        if (categoriesResponse.success && categoriesResponse.data) {
+          setCategories(categoriesResponse.data as Category[]);
+        }
+      } catch (error) {
+        console.error('Failed to fetch home page data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="space-y-16 py-8">
